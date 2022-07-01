@@ -129,7 +129,7 @@ const BlockForm: FC<BlockFormProps> = ({ scanning, onScan }) => {
                         {scanning ?
                             <LoadingButton
                                 loading
-                                loadingPosition="start"
+                                // loadingPosition="start"
                                 // startIcon={<SaveIcon />}
                                 size="medium"
                                 variant="contained"
