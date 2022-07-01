@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import {
     CssBaseline,
@@ -9,9 +10,19 @@ import {
     Grid,
     Paper
 } from '@mui/material';
+import BlockForm, { SearchParams } from './components/BlockForm';
 
 const mdTheme = createTheme();
 function DashboardContent() {
+    const [scanning, setScanning] = useState<boolean>(false);
+
+    const onScan = (params: SearchParams) => {
+        if (scanning) return;
+        setScanning(true);
+
+        
+    }
+
     return (
         <ThemeProvider theme={mdTheme}>
             <Box sx={{ display: 'flex' }}>
@@ -47,6 +58,8 @@ function DashboardContent() {
                             {/* Chart */}
                             <Grid item xs={12}>
                                 <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+                                    <BlockForm scanning={scanning}
+                                        onScan={onScan} />
                                 </Paper>
                             </Grid>
 
