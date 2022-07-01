@@ -261,7 +261,7 @@ const EventTable: FC<EventTableProps> = ({ events }) => {
                             onRequestSort={handleRequestSort}
                         />
                         <TableBody>
-                            {stableSort(events.filter(event => event.name.search(name) != -1), order, orderBy).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                            {stableSort(events.filter(event => event.name.search(name) !== -1), order, orderBy).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                 .map((event) => <MemoizedEventTableRow event={event}
                                     key={event.block + ':' + event.id} />)}
                         </TableBody>
