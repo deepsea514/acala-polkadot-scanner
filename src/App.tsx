@@ -1,14 +1,8 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, FC } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import {
-    CssBaseline,
-    Box,
-    AppBar,
-    Toolbar,
-    Typography,
-    Container,
-    Grid,
-    Paper
+    CssBaseline, Box, AppBar,
+    Toolbar, Typography, Container, Grid, Paper
 } from '@mui/material';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import '@polkadot/api-augment';
@@ -17,7 +11,7 @@ import LinearWithValueLabel from './components/LinearWithValueLabel';
 import EventTable, { PolkadotEvent } from './components/EventTable';
 
 const mdTheme = createTheme();
-function DashboardContent() {
+const DashboardContent: FC = () => {
     const [scanning, setScanning] = useState<boolean>(false);
     const [events, setEvents] = useState<PolkadotEvent[]>([]);
     const [progress, setProgress] = useState<number>(0);
@@ -136,6 +130,8 @@ function DashboardContent() {
     );
 }
 
-export default function Dashboard() {
+const App: FC = () => {
     return <DashboardContent />;
 }
+
+export default App;

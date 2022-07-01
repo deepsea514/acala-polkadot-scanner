@@ -5,12 +5,12 @@ import { Typography, Box } from '@mui/material';
 type LinearProgressWithLabelProps = LinearProgressProps & { value: number };
 const LinearProgressWithLabel: FC<LinearProgressWithLabelProps> = (props) => {
     return (
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Box sx={{ width: '100%', mr: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', p: 2 }}>
+            <Box sx={{ width: '100%', mr: 2 }}>
                 <LinearProgress variant="determinate" {...props} />
             </Box>
-            <Box sx={{ minWidth: 35 }}>
-                <Typography variant="body2" color="text.secondary">{`${Math.round(
+            <Box sx={{ minWidth: 50 }}>
+                <Typography variant="h6" color="text.secondary">{`${Math.round(
                     props.value,
                 )}%`}
                 </Typography>
