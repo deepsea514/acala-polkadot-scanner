@@ -6,7 +6,7 @@ import {
 } from '@mui/material';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import '@polkadot/api-augment';
-import BlockForm, { SearchParams } from './components/BlockForm';
+import BlockForm, { ScanParams } from './components/BlockForm';
 import LinearWithValueLabel from './components/LinearWithValueLabel';
 import EventTable, { PolkadotEvent } from './components/EventTable';
 
@@ -16,7 +16,7 @@ const DashboardContent: FC = () => {
     const [events, setEvents] = useState<PolkadotEvent[]>([]);
     const [progress, setProgress] = useState<number>(0);
 
-    const onScan = useCallback(async (params: SearchParams) => {
+    const onScan = useCallback(async (params: ScanParams) => {
         setScanning(true);
         setProgress(0);
         setEvents([]);

@@ -8,6 +8,7 @@ import {
     KeyboardArrowUp as KeyboardArrowUpIcon,
 } from '@mui/icons-material';
 import { visuallyHidden } from '@mui/utils';
+import SearchForm from './SearchForm';
 
 export type PolkadotEvent = {
     block: number,
@@ -223,6 +224,7 @@ const EventTable: FC<EventTableProps> = ({ events }) => {
     const [rowsPerPage, setRowsPerPage] = useState<number>(50);
     const [order, setOrder] = useState<Order>('asc');
     const [orderBy, setOrderBy] = useState<keyof PolkadotEvent>('id');
+    const [name, setName] = useState<string>('');
 
     const handleRequestSort = (
         event: React.MouseEvent<unknown>,
@@ -242,32 +244,40 @@ const EventTable: FC<EventTableProps> = ({ events }) => {
         setPage(0);
     };
 
+    const onSearch = (name: string) => {
+        setName(name);
+    }
+
     return (
-        <Container component="div" maxWidth="xl" sx={{ minHeight: '100px' }}>
-            <TableContainer>
-                <Table stickyHeader aria-label="sticky table">
-                    <EnhancedTableHead
-                        order={order}
-                        orderBy={orderBy}
-                        onRequestSort={handleRequestSort}
-                    />
-                    <TableBody>
-                        {stableSort(events, order, orderBy).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                            .map((event) => <MemoizedEventTableRow event={event}
-                                key={event.block + ':' + event.id} />)}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-            <TablePagination
-                rowsPerPageOptions={[10, 25, 50, 100]}
-                component="div"
-                count={events.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-        </Container>
+        <Fragment>
+            <SearchForm onSearch={onSearch} />
+
+            <Container component="div" maxWidth="xl" sx={{ minHeight: '100px' }}>
+                <TableContainer>
+                    <Table stickyHeader aria-label="sticky table">
+                        <EnhancedTableHead
+                            order={order}
+                            orderBy={orderBy}
+                            onRequestSort={handleRequestSort}
+                        />
+                        <TableBody>
+                            {stableSort(events.filter(event => event.name.search(name) != -1), order, orderBy).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                .map((event) => <MemoizedEventTableRow event={event}
+                                    key={event.block + ':' + event.id} />)}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+                <TablePagination
+                    rowsPerPageOptions={[10, 25, 50, 100]}
+                    component="div"
+                    count={events.length}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onPageChange={handleChangePage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                />
+            </Container>
+        </Fragment>
     );
 }
 

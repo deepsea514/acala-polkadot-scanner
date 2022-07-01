@@ -4,16 +4,16 @@ import { LoadingButton } from '@mui/lab';
 
 type BlockFormProps = {
     scanning: boolean,
-    onScan: (params: SearchParams) => void
+    onScan: (params: ScanParams) => void
 }
 
-export type SearchParams = {
+export type ScanParams = {
     startBlock: number,
     endBlock: number,
     endpoint: string,
 }
 
-export type SearchParamsError = {
+export type ScanParamsError = {
     startBlock?: string,
     endBlock?: string,
     endpoint?: string,
@@ -25,12 +25,12 @@ const BlockForm: FC<BlockFormProps> = ({ scanning, onScan }) => {
     const [startBlock, setStartBlock] = useState<string>('');
     const [endBlock, setEndBlock] = useState<string>('');
     const [endpoint, setEndpoint] = useState<string>(DEFAULT_ENDPOINT);
-    const [error, setError] = useState<SearchParamsError>({});
+    const [error, setError] = useState<ScanParamsError>({});
 
     const onSubmit = (event: any) => {
         event?.preventDefault();
 
-        const formError: SearchParamsError = {};
+        const formError: ScanParamsError = {};
         if (startBlock === '') {
             formError.startBlock = "Please set the start block number.";
         }
@@ -129,8 +129,6 @@ const BlockForm: FC<BlockFormProps> = ({ scanning, onScan }) => {
                         {scanning ?
                             <LoadingButton
                                 loading
-                                // loadingPosition="start"
-                                // startIcon={<SaveIcon />}
                                 size="medium"
                                 variant="contained"
                                 fullWidth
