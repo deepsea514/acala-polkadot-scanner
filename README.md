@@ -18,3 +18,5 @@
     npm run build
     npm run server
     ```
+ - username: 'acala'
+ - password: 'acala
