@@ -66,11 +66,9 @@ const descendingComparator = <T,>(a: T, b: T, orderBy: keyof T) => {
 
 type Order = 'asc' | 'desc';
 
-function getComparator<Key extends keyof PolkadotEvent>(order: Order, orderBy: Key): (a: { [key in Key]: any }, b: { [key in Key]: any }) => number {
+const getComparator = <Key extends keyof PolkadotEvent,>(order: Order, orderBy: Key) => (a: { [key in Key]: any }, b: { [key in Key]: any }) => {
     let orderBy_ = orderBy === 'id' ? 'block' as Key : orderBy;
-    return order === 'desc'
-        ? (a, b) => descendingComparator(a, b, orderBy_)
-        : (a, b) => -descendingComparator(a, b, orderBy_);
+    return order === 'desc' ? descendingComparator(a, b, orderBy_) : -descendingComparator(a, b, orderBy_);
 }
 
 const stableSort = (array: readonly PolkadotEvent[], order: Order, orderBy: keyof PolkadotEvent) => {
