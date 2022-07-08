@@ -9,6 +9,7 @@ import '@polkadot/api-augment';
 import BlockForm, { ScanParams } from './components/BlockForm';
 import LinearWithValueLabel from './components/LinearWithValueLabel';
 import EventTable, { PolkadotEvent } from './components/EventTable';
+import { showErrorMessage } from './libs/toast';
 
 const mdTheme = createTheme();
 const DashboardContent: FC = () => {
@@ -24,52 +25,63 @@ const DashboardContent: FC = () => {
 
         try {
             const wsProvider = new WsProvider(params.endpoint);
-            const api = await ApiPromise.create({ provider: wsProvider });
+            const api = await ApiPromise.create({
+                provider: wsProvider,
+                throwOnConnect: true
+            });
 
             const lastBlock = await api.rpc.chain.getBlock();
-            let lastBlockNumber = lastBlock.block.header.number.toNumber();
+            let lastBlockNumber: number = lastBlock.block.header.number.toNumber();
             lastBlockNumber = lastBlockNumber < params.endBlock ? lastBlockNumber : params.endBlock;
+            const totalBlock: number = lastBlockNumber - params.startBlock + 1;
 
-            const totalBlock = lastBlockNumber - params.startBlock + 1;
+            const blocks: number[] = Array.from({ length: totalBlock }, (_, i) => i + params.startBlock);
+            let prev_progress = 0;
+            await Promise.all(blocks.map(async (block) => {
+                try {
+                    const blockHash = await api.rpc.chain.getBlockHash(block);
+                    const signedBlock = await api.rpc.chain.getBlock(blockHash);
+                    const apiAt = await api.at(signedBlock.block.header.hash);
+                    const allRecords = await apiAt.query.system.events();
 
-            for (let block = params.startBlock; block <= lastBlockNumber; block++) {
-                const blockHash = await api.rpc.chain.getBlockHash(block);
-                const signedBlock = await api.rpc.chain.getBlock(blockHash);
-                const apiAt = await api.at(signedBlock.block.header.hash);
-                const allRecords = await apiAt.query.system.events();
-
-                const events = allRecords.map(({ event, phase }, index): PolkadotEvent => {
-                    const data = JSON.parse(JSON.stringify(event.data.toJSON()));
-                    const params: any[] = [{ 'Docs': event.data.meta.docs.toLocaleString() }];
-                    event.data.meta.fields.toArray().map((field, index) => {
-                        const field_ = JSON.parse(JSON.stringify(field.toJSON()));
-                        if (field_.name == null && field_.typeName == null) {
-                            params.push({ 'DispatchInfo: dispatch_info': data[index] })
-                        } else {
-                            let fieldName = '';
-                            if (field_.typeName) {
-                                fieldName += field_.typeName;
-                                if (field_.name) fieldName += ': ' + field_.name;
-                            } else fieldName += field_.name;
-                            params.push({ [fieldName]: data[index] })
+                    const events = allRecords.map(({ event, phase }, index): PolkadotEvent => {
+                        const data = JSON.parse(JSON.stringify(event.data.toJSON()));
+                        const params: any[] = [{ 'Docs': event.data.meta.docs.toLocaleString() }];
+                        event.data.meta.fields.toArray().map((field, index) => {
+                            const field_ = JSON.parse(JSON.stringify(field.toJSON()));
+                            if (field_.name == null && field_.typeName == null) {
+                                params.push({ 'DispatchInfo: dispatch_info': data[index] })
+                            } else {
+                                let fieldName = '';
+                                if (field_.typeName) {
+                                    fieldName += field_.typeName;
+                                    if (field_.name) fieldName += ': ' + field_.name;
+                                } else fieldName += field_.name;
+                                params.push({ [fieldName]: data[index] })
+                            }
+                            return null;
+                        })
+                        return {
+                            block: block,
+                            name: `${event.section}:${event.method}`,
+                            id: index,
+                            type: phase.type,
+                            params: params
                         }
-                        return null;
-                    })
-                    return {
-                        block: block,
-                        name: `${event.section}:${event.method}`,
-                        id: index,
-                        type: phase.type,
-                        params: params
-                    }
-                });
-                totalEvents = totalEvents.concat(events);
-                setEvents(totalEvents);
-                const progress = 100 * (block - params.startBlock + 1) / totalBlock;
-                setProgress(progress);
-            }
+                    });
+                    totalEvents = totalEvents.concat(events);
+                    setEvents(totalEvents);
+                } catch (error) {
+                    showErrorMessage(`Cannot get block data at block number ${block}.`);
+                }
+                const next_progress = 100 * (block - params.startBlock + 1) / totalBlock;
+                prev_progress = next_progress > prev_progress ? next_progress : prev_progress;
+                setProgress(prev_progress);
+                return next_progress;
+            }))
             setProgress(100);
         } catch (error) {
+            showErrorMessage("Cannot resolve api promise.");
         } finally {
             setScanning(false);
         }
