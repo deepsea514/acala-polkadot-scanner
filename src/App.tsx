@@ -36,7 +36,7 @@ const DashboardContent: FC = () => {
             const totalBlock: number = lastBlockNumber - params.startBlock + 1;
 
             const blocks: number[] = Array.from({ length: totalBlock }, (_, i) => i + params.startBlock);
-            let prev_progress = 0;
+            let fetch_count = 0;
             await Promise.all(blocks.map(async (block) => {
                 try {
                     const blockHash = await api.rpc.chain.getBlockHash(block);
@@ -74,10 +74,9 @@ const DashboardContent: FC = () => {
                 } catch (error) {
                     showErrorMessage(`Cannot get block data at block number ${block}.`);
                 }
-                const next_progress = 100 * (block - params.startBlock + 1) / totalBlock;
-                prev_progress = next_progress > prev_progress ? next_progress : prev_progress;
-                setProgress(prev_progress);
-                return next_progress;
+                fetch_count++;
+                const next_progress = 100 * (fetch_count - params.startBlock + 1) / totalBlock;
+                setProgress(next_progress);
             }))
             setProgress(100);
         } catch (error) {
